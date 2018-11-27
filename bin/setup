@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+require 'sqlite3'
+
+puts '== Installing dependencies =='
+system 'gem install bundler --conservative'
+system('bundle check') || system('bundle install')
+
+puts "\n== Preparing database =="
+begin
+  db = SQLite3::Database.open 'currency_exchange.db'
+  db.execute <<-SQL
+    create table if not exists transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      amount REAL NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  SQL
+rescue SQLite3::Exception => e
+  puts e
+ensure
+  db.close if db
+end
